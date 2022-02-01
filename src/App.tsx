@@ -1,12 +1,16 @@
 import { useState } from "react";
 import logo from "./logo.svg";
 import { useAppDispatch, useAppSelector } from "./app/hooks";
-import { increment } from "./features/counter/counterSlice";
+import { increment, amountAdded } from "./features/counter/counterSlice";
+import { useFetchBreedsQuery } from "./features/dogs/dogsApiSlice";
 import "./App.css";
 
 function App() {
+  const dispatch = useAppDispatch();
   const value = useAppSelector((state) => state.counter.value);
-  const [count, setCount] = useState(0);
+
+  const [numDogs, setNumDogs] = useState(10);
+  const { data = [], isFetching } = useFetchBreedsQuery(numDogs);
 
   return (
     <div className="App">
@@ -14,13 +18,43 @@ function App() {
         <img src={logo} className="App-logo" alt="logo" />
         <p>Hello Vite + React!</p>
         <p>
-          <button type="button" onClick={() => setCount((count) => count + 1)}>
-            count is: {count}
+          <button type="button" onClick={() => dispatch(amountAdded(5))}>
+            count is: {value}
           </button>
         </p>
-        <p>
-          Edit <code>App.tsx</code> and save to test HMR updates.
-        </p>
+        <div> 강아지 수는 : {data.length}</div>
+        <div>
+          <p> 더 가져오기</p>
+          <select
+            value={numDogs}
+            onChange={(e) => setNumDogs(Number(e.target.value))}
+          >
+            <option value="5">5</option>
+            <option value="10">10</option>
+            <option value="15">15</option>
+            <option value="20">20</option>
+          </select>
+        </div>
+        <div>
+          <table>
+            <thead>
+              <tr>
+                <th>이름</th>
+                <th>사진</th>
+              </tr>
+            </thead>
+            <tbody>
+              {data.map((breed) => (
+                <tr key={breed.id}>
+                  <td>{breed.name}</td>
+                  <td>
+                    <img src={breed.image.url} alt={breed.name} height={250} />
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
         <p>
           <a
             className="App-link"
